@@ -1,4 +1,4 @@
-### 需求文档：BTC Gamma Scalping 策略回测系统
+### BTC Gamma Scalping 策略回测系统
 
 ***
 
