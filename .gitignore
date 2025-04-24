@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 **/.ipynb_checkpoints/*
 __pycache__/*
+.venv

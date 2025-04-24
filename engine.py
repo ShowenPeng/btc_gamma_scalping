@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from typing import Dict, Any, Optional
 from scipy.stats import norm
-from py_vollib.black_scholes.implied_volatility import implied_volatility
+# from py_vollib.black_scholes.implied_volatility import implied_volatility
 import datetime
 
 class GammaScalping:
@@ -61,13 +61,14 @@ class GammaScalping:
 
     def delta_hedging(self, row: pd.Series, today: datetime.date):
         try:
-            pos = self.current_position
-            T = max(row['DaysToExpiry'] / 365, 1e-6)
+            pos = self.current_position  # 获取当前持仓
+            T = max(row['DaysToExpiry'] / 365, 1e-6)  # 计算剩余到期时间（年化），最小值为1e-6
             r = 0.0  # 假设无风险利率为0
+            # 计算看涨期权和看跌期权的 Delta
             call_delta = self.calculate_delta(row['SpotPrice'], pos['call_strike'], T, r, row['CallIV'], 'call') * pos['call_qty']
             put_delta = self.calculate_delta(row['SpotPrice'], pos['put_strike'], T, r, row['PutIV'], 'put') * pos['put_qty']
-            perp_delta = pos['perp_qty']
-            total_delta = call_delta + put_delta + perp_delta
+            perp_delta = pos['perp_qty']  # 永续合约的 Delta
+            total_delta = call_delta + put_delta + perp_delta  # 计算总 Delta
 
             delta_threshold = max(0.1 * pos['put_qty'], 0.1 * pos['call_qty'])
             if abs(total_delta) > delta_threshold:

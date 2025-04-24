@@ -141,6 +141,9 @@
    pandas==1.3.4
    py_vollib==1.0.1
    matplotlib==3.5.0
+   scipy==1.7.1
+   datetime==4.3
+   typing==3.10.0.0
    ```
 
 ***
