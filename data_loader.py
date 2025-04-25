@@ -49,7 +49,11 @@ class DataLoader:
             next_month = month + 1
         return DataLoader.get_last_friday(next_year, next_month)
 
-    def add_expiry_days(self, expiry_day: datetime.date) -> pd.DataFrame:
-        self.data['Expiry'] = expiry_day  # 设置到期日列
-        self.data['DaysToExpiry'] = (expiry_day - self.data['Date'].dt.date).apply(lambda x: max(x.days, 0))  # 计算距离到期日的天数，确保不小于0
+    def add_expiry_days(self) -> pd.DataFrame:
+        # 对每一行，计算下个月最后一个周五作为到期日
+        expiry_dates = self.data['Date'].dt.date.apply(
+            lambda d: self.get_next_month_last_friday(d.year, d.month)
+        )
+        self.data['Expiry'] = expiry_dates
+        self.data['DaysToExpiry'] = (self.data['Expiry'] - self.data['Date'].dt.date).apply(lambda x: max(x.days, 0))
         return self.data  # 返回更新后的DataFrame

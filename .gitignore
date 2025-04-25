@@ -25,3 +25,4 @@ dist-ssr
 **/.ipynb_checkpoints/*
 __pycache__/*
 .venv
+.env
