@@ -96,9 +96,9 @@
 
    ```JSON
    {
-     "start_date": "2020-01-01",
-     "end_date": "2023-12-31",
-     "initial_capital": 1.0,  # 以 BTC 为单位
+     "start_date": "2022-01-01",
+     "end_date": "2025-12-31",
+     "initial_capital": 1000000.0,  # 以 USD 为单位
      "hedge_freq_days": 2     # 对冲频率
    }
    ```
@@ -142,8 +142,7 @@
    py_vollib==1.0.1
    matplotlib==3.5.0
    scipy==1.7.1
-   datetime==4.3
-   typing==3.10.0.0
+   yfinance==0.2.56
    ```
 
 ***

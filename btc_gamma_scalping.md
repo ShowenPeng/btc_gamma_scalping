@@ -76,7 +76,7 @@
 
 ## 八、关键计算公式
 
-* **剩余到期时间**：`当天日期 - 期权到期日`
+* **剩余到期时间**：`期权到期日 - 当天日期`
 * **Delta 计算**：根据 BSM 公式，基于 spot price、期权最新价格、IV、剩余到期时间，分别计算期权的 delta，Perp 的 delta = 方向数量 × 1
 * **组合 delta**：`call delta + put delta + perp delta`
 * **仓位成本**：`call 成本 + put 成本 + perp 开仓价格 × 数量`
