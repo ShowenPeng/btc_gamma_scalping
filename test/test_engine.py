@@ -24,7 +24,7 @@ class TestGammaScalpingInit:
         pd.testing.assert_frame_equal(strategy.data, sample_data)
         assert strategy.initial_capital == 100000
         assert strategy.hedge_freq_days == 2  # 默认值
-        assert strategy.portfolio == []
+        # assert strategy.portfolio == []
         assert strategy.current_position is None
         assert strategy.realized_pnl == 0.0
         assert strategy.cash == 100000

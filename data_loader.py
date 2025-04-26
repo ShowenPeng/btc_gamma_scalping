@@ -9,7 +9,8 @@ class DataLoader:
 
     def _load_data(self) -> pd.DataFrame:
         try:
-            df = pd.read_csv(self.csv_path, parse_dates=['Date'])  # 读取CSV文件并将Date列解析为日期格式
+            df = pd.read_csv(self.csv_path, parse_dates=['Date'])  # 读取CSV文件
+            df['Date'] = pd.to_datetime(df['Date'])  # 将Date列转换为datetime类型
             df = df.sort_values('Date').reset_index(drop=True)  # 按日期排序并重置索引
             return df  # 返回处理后的DataFrame
         except Exception as e:

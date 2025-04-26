@@ -10,11 +10,10 @@ class GammaScalping:
         self.data = data  # 包含期权和现货价格的历史数据
         self.initial_capital = initial_capital  # 初始资金
         self.hedge_freq_days = hedge_freq_days  # 对冲频率（天数）
-        self.portfolio = []  # 用于存储历史交易记录
+        # self.portfolio = []  # 用于存储历史交易记录
         self.current_position = None  # 当前持仓信息
         self.realized_pnl = 0.0  # 已实现盈亏
         self.cash = initial_capital  # 可用现金
-        self.last_hedge_day = None  # 上次对冲日期
 
     def open_position(self, row: pd.Series):
         try:
@@ -29,6 +28,7 @@ class GammaScalping:
                 'call_cost': call_cost,  # 看涨期权成本
                 'put_cost': put_cost,  # 看跌期权成本
                 'perp_cost': 0.0,  # 永续合约成本
+                'last_hedge_day': None,  # 上次对冲日期
                 'open_date': row['Date'],  # 建仓日期
                 'expiry': row['Expiry'],  # 期权到期日
                 'call_iv': row['CallIV'],  # 看涨期权隐含波动率
@@ -38,7 +38,7 @@ class GammaScalping:
                 'spot': row['SpotPrice'],  # 现货价格
                 'perp_price': row['PerpPrice'],  # 永续合约价格
                 'cost': self.cash,  # 总成本
-                'cash_left': 0.0  # 剩余现金（初始为0）
+                # 'cash_left': 0.0  # 剩余现金（初始为0）
             }
             self.cash = 0.0  # 更新可用现金为0
         except Exception as e:
@@ -78,7 +78,8 @@ class GammaScalping:
                     hedge_qty = 0.0  # 忽略该次对冲
                 pos['perp_qty'] += hedge_qty  # 更新永续合约数量
                 pos['perp_cost'] += abs(hedge_qty) * row['PerpPrice']  # 更新永续合约成本
-                self.last_hedge_day = today  # 更新上次对冲日期
+                pos['cost'] += pos['perp_cost']  # 更新总成本
+                pos['last_hedge_day'] = today  # 更新上次对冲日期
             return call_delta, put_delta, perp_delta, total_delta  # 返回各Delta值
         except Exception as e:
             raise RuntimeError(f"对冲失败: {e}")  # 捕获并抛出异常
@@ -91,8 +92,8 @@ class GammaScalping:
             put_value = pos['put_qty'] * row['PutPrice']  # 计算看跌期权价值
             perp_value = abs(pos['perp_qty']) * row['PerpPrice']  # 计算永续合约价值
             position_value = call_value + put_value + perp_value  # 计算总持仓价值
-            cost = pos['call_cost'] + pos['put_cost'] + pos['perp_cost']  # 计算总成本
-            realized = position_value - cost  # 计算已实现盈亏
+            # cost = pos['call_cost'] + pos['put_cost'] + pos['perp_cost']  # 计算总成本
+            realized = position_value - pos['cost']  # 计算已实现盈亏
             self.realized_pnl += realized  # 更新累计已实现盈亏
             self.cash += position_value  # 更新可用现金
             self.current_position = None  # 清空当前持仓
@@ -106,8 +107,8 @@ class GammaScalping:
         put_value = pos['put_qty'] * row['PutPrice']  # 计算看跌期权当前价值
         perp_value =abs(pos['perp_qty']) * row['PerpPrice']  # 计算永续合约当前价值
         position_value = call_value + put_value + perp_value  # 计算总持仓价值
-        cost = pos['call_cost'] + pos['put_cost'] + pos['perp_cost']  # 计算总成本
-        unrealized = position_value - cost  # 计算未实现盈亏
+        # cost = pos['call_cost'] + pos['put_cost'] + pos['perp_cost']  # 计算总成本
+        unrealized = position_value - pos['cost']  # 计算未实现盈亏
         total_asset = self.cash + position_value  # 计算总资产
         return {  # 返回包含投资组合信息的字典
             "Date": row['Date'],  # 当前日期
@@ -118,10 +119,10 @@ class GammaScalping:
             "PutDelta": put_delta,  # 看跌期权Delta
             "PerpDelta": perp_delta,  # 永续合约Delta
             "TotalDelta": total_delta,  # 总Delta
-            "Cost": cost,  # 总成本
+            "Cost": pos['cost'],  # 总成本
             "Value": position_value,  # 持仓总价值
             "UnrealizedPnL": unrealized,  # 未实现盈亏
             "RealizedPnL": self.realized_pnl,  # 已实现盈亏
             "TotalAsset": total_asset,  # 总资产
-            "Return": total_asset / self.initial_capital - 1  # 投资回报率
+            "Return": total_asset / pos['cost'] - 1  # 投资回报率
         }
